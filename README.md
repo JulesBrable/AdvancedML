@@ -9,19 +9,24 @@ Repository for the final project of the Advanced Machine Learning course (taught
 git clone https://github.com/JulesBrable/AdvancedML.git
 ```
 
-2. Install the listed dependencies:
+2. Go to the project folder:
+```bash
+cd AvdancedML
+```
+
+3. Install the listed dependencies:
    
 ```bash
 pip install -r requirements.txt
 ```
 
-3. Install the project as a package:
+4. Install the project as a package:
    
 ```bash
 pip install -e .
 ```
 
-4. Get the data:
+5. Get the data:
 
 ```python
 python src/etl/utils.py
