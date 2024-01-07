@@ -21,3 +21,8 @@ pip install -r requirements.txt
 pip install -e .
 ```
 
+4. Get the data:
+
+```python
+python src/etl/utils.py
+```
