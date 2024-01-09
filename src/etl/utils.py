@@ -3,7 +3,7 @@ import os
 from ucimlrepo import fetch_ucirepo
 from typing import Tuple
 
-def download_data_from_uciml(id: int, data_folder: str = "data"):
+def download_data_from_uciml(id: int, data_folder: str = "../data"):
     """Fetch and download dataset from UC Irvine Machine Learning API"""
     
     # create the data_folder if it does not exist
