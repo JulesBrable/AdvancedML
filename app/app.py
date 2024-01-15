@@ -55,7 +55,7 @@ st.sidebar.write("""
                  This app visualizes the path of the Adam optimization algorithm on different mathematical functions.
                  Adjust the hyperparameters in the sidebar and observe how the optimization trajectory changes.
                  """)
-lr = st.sidebar.slider("Select the step-size", 0.0, 0.999, 0.01, 0.0001)
+lr = st.sidebar.slider("Select the step-size", 0.0, 0.1, 0.01, 0.0001)
 beta1 = st.sidebar.slider("Select β₁ (First Moment Decay Rate)", 0.0, 0.999, 0.9, 0.001)
 beta2 = st.sidebar.slider("Select β₂ (Second Moment Decay Rate)", 0.0, 0.999, 0.999, 0.001)
 iterations = st.sidebar.slider('Number of Iterations', 20, 100, 50)
