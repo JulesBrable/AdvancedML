@@ -20,10 +20,10 @@ function_descriptions = {
     'f5': r'f_5(x, y) = x^2 - \sin(y)^2'
 }
 
-def dynamic_plot_hyperparameters(beta1, beta2, num_iterations, function, ax1, ax2):
+def dynamic_plot_hyperparameters(lr, beta1, beta2, num_iterations, function, ax1, ax2):
     f, f_grad = function_dict[function]
     params = torch.tensor([1.5, -1.5], requires_grad=True)
-    optimizer = torch.optim.Adam([params], lr=0.1, betas=(beta1, beta2))
+    optimizer = torch.optim.Adam([params], lr=lr, betas=(beta1, beta2))
 
     x = np.linspace(-4, 4, 600)
     y = np.linspace(-4, 4, 600)
@@ -55,6 +55,7 @@ st.sidebar.write("""
                  This app visualizes the path of the Adam optimization algorithm on different mathematical functions.
                  Adjust the hyperparameters in the sidebar and observe how the optimization trajectory changes.
                  """)
+lr = st.sidebar.slider("Select the step-size", 0.0, 0.999, 0.01, 0.0001)
 beta1 = st.sidebar.slider("Select β₁ (First Moment Decay Rate)", 0.0, 0.999, 0.9, 0.001)
 beta2 = st.sidebar.slider("Select β₂ (Second Moment Decay Rate)", 0.0, 0.999, 0.999, 0.001)
 iterations = st.sidebar.slider('Number of Iterations', 20, 100, 50)
@@ -74,7 +75,7 @@ st.latex(function_descriptions[function_selected])
 fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
 ax1 = fig.add_subplot(121, projection='3d')
 ax2 = fig.add_subplot(122)
-dynamic_plot_hyperparameters(beta1, beta2, iterations, function_selected, ax1, ax2)
+dynamic_plot_hyperparameters(lr, beta1, beta2, iterations, function_selected, ax1, ax2)
 
 st.pyplot(fig)
 
