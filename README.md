@@ -3,9 +3,9 @@ Repository for the final project of the Advanced Machine Learning course (taught
 
 ## Contents
 
--`notebooks` folder contains the notebook `descriptives.ipynb`, which briefly shows how to reproduce the empirical results we obtained in our paper (the underlying approach followed in this notebooks is described in our paper). This notebook contains 3 sections : Data, K-Fold Cross Validation and Training with best hyper-paramters.
--`src` folder contains the 2 modules (`etl` and `model`) we are using in the notebook `descriptives.ipynb`. Basically, the scripts inside these modules allow to extract and preprocessed data, as well as build, training and evaluating the models we are using.
--`app` folder contains the source code a [`Streamlit`](https://streamlit.io/) web app (see below for a more detailed description of this app).
+* `notebooks` folder contains the notebook `descriptives.ipynb`, which briefly shows how to reproduce the empirical results we obtained in our paper (the underlying approach followed in this notebooks is described in our paper). This notebook contains 3 sections : Data, K-Fold Cross Validation and Training with best hyper-paramters.
+* `src` folder contains the 2 modules (`etl` and `model`) we are using in the notebook `descriptives.ipynb`. Basically, the scripts inside these modules allow to extract and preprocessed data, as well as build, training and evaluating the models we are using.
+* `app` folder contains the source code a [`Streamlit`](https://streamlit.io/) web app (see below for a more detailed description of this app).
 
 _**Note:** this repository does not contains the final report associated to this study (in which we present more in depth both theoritical and empirical aspectsof our work)._
 
