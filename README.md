@@ -42,7 +42,7 @@ pip install -e .
 python src/etl/utils.py
 ```
 
-_**Note:** the data comes from the [UC Irvine Machine Learning Repository](https://archive.ics.uci.edu/dataset/544/estimation+of+obesity+levels+based+on+eating+habits+and+physical+condition), and can also be directly downloaded from this site._
+_**Note:** the data comes from the public [UC Irvine Machine Learning Repository](https://archive.ics.uci.edu/dataset/544/estimation+of+obesity+levels+based+on+eating+habits+and+physical+condition), and can also be directly downloaded from this site. We have also added the data in thsi repository in the `data` folder for back-up, although we are aware it is not a best practice._
 
 ## Web application
 
