@@ -2,6 +2,7 @@
 This module defines kernel functions (quadratic, Gaussian) and implements the 
 Rosenbrock function. It relies on `torch`.
 """
+import math
 import torch
 
 # ====================================================================
@@ -113,3 +114,36 @@ def rosenbrock_grad(x):
     der[0] = -400 * x[0] * (x[1] - x[0]**2) - 2 * (1 - x[0])
     der[-1] = 200 * (x[-1] - x[-2]**2)
     return der
+
+# ====================================================================
+# Ill-condition problem: Rosenbrock function (local minima)
+# ====================================================================
+import math
+import torch
+
+def ackley(x, a=20, b=0.2, c=2*math.pi):
+    d = len(x)
+
+    sum1 = torch.sum(x**2)
+    sum2 = torch.sum(torch.cos(c*x))
+
+    term1 = -a * torch.exp(-b*torch.sqrt(sum1/d))
+    term2 = -torch.exp(sum2/d)
+
+    y = term1 + term2 + a + torch.exp(torch.tensor(1.0))
+    return y
+
+def ackley_grad(x: torch.Tensor, a=20, b=0.2, c=2*math.pi):
+    d = len(x)
+
+    sum1 = torch.sum(x**2)
+    sum2 = torch.sum(torch.cos(c*x))
+
+    exp_term1 = torch.exp(-b*torch.sqrt(sum1/d))
+    exp_term2 = torch.exp(sum2/d)
+
+    factor1 = 2*a*b / d * (x / torch.sqrt(d*sum1)) * exp_term1
+    factor2 = -c * torch.sin(c*x) * exp_term2 / d
+
+    gradient = factor1 + factor2
+    return gradient

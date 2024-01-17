@@ -1,7 +1,13 @@
+"""
+"""
+from itertools import product
 from typing import Callable, Dict, Any, Optional, Tuple
+
 import numpy as np
 import torch
+from joblib import Parallel, delayed
 from src.algorithms.adam import AdamOptimizer
+
 
 def optimize_with_one_optimizer(
     optimizer_cls,
@@ -58,3 +64,151 @@ def optimize_with_one_optimizer(
                 break
 
     return np.array(all_x_k), np.array(all_f_k)
+
+
+def optimize_with_multiple_optimizers(
+    x_init: np.ndarray,
+    loss_fn: Callable,
+    loss_grad: Callable,
+    optimizers_config: Dict[str, Tuple[Any, Dict[str, Any]]],
+    max_iter: int = 1000,
+    tol_grad: float = 1e-6
+) -> Tuple[Dict[str, np.ndarray], Dict[str, np.ndarray]]:
+    """
+    Optimize a given objective function using multiple optimizers.
+
+    Parameters:
+    - x_init (np.ndarray): Initial guess for the optimization.
+    - loss_fn (Callable): Objective function to minimize.
+    - loss_grad (Callable): Gradient of the objective function.
+    - optimizers_config (Dict[str, Tuple[Any, Dict[str, Any]]]): Dictionary 
+        where keys are optimizer names and values are tuples containing 
+        optimizer class and its configuration.
+    - max_iter (int): Maximum number of optimization iterations 
+        (default: 1000).
+    - tol_grad (float): Tolerance for convergence based on the gradient norm
+        (default: 1e-6).
+
+    Returns:
+    Tuple[Dict[str, np.ndarray], Dict[str, np.ndarray]]: Tuple containing 
+        dictionaries of solutions and corresponding objective values for each 
+        optimizer.
+    """
+    solutions, values = {}, {}
+
+    for optim_name, (optim_cls, optim_kwargs) in optimizers_config.items():
+        if optim_cls == AdamOptimizer:
+            adam_optim = optim_cls(**optim_kwargs, tol_grad=tol_grad)
+            adam_optim.minimize(
+                theta_init=x_init,
+                f=loss_fn,
+                f_grad=loss_grad,
+                f_grad_args=(),
+                max_iter=max_iter
+            )
+            solutions[optim_name] = np.array(adam_optim.all_x_k)
+            values[optim_name] = np.array(adam_optim.all_f_k)
+        else:
+            s, v = optimize_with_one_optimizer(
+                optim_cls, x_init, loss_fn, loss_grad, optim_kwargs, max_iter, tol_grad
+            )
+            solutions[optim_name] = s
+            values[optim_name] = v
+
+    return solutions, values
+
+
+def tune_parameters(
+    param_grid: Dict[str, list],
+    optimizer_cls,
+    x_init: np.ndarray,
+    loss_fn: Callable,
+    loss_grad: Optional[Callable] = None,
+    max_iter: int = 1000,
+    tol_grad: float = 1e-6
+) -> Dict[str, Any]:
+
+    best_n_iter = float('inf')
+    best_params = None
+
+    for params in product(*param_grid.values()):
+        optimizer_params = dict(zip(param_grid.keys(), params))
+        result = optimize_with_one_optimizer(
+            optimizer_cls=optimizer_cls,
+            x_init=x_init,
+            loss_fn=loss_fn,
+            loss_grad=loss_grad,
+            optim_kwargs=optimizer_params,
+            max_iter=max_iter,
+            tol_grad=tol_grad
+        )
+        current_n_iter = len(result[0])
+
+        if current_n_iter < best_n_iter:
+            best_n_iter = current_n_iter
+            best_params = optimizer_params
+
+    return {"optimal_grid": best_params, "best_n_iter": best_n_iter}
+
+
+def tune_parameters_multiple(
+    optimizers: Dict[str, type],
+    param_grids: Dict[str, Dict[str, list]],
+    x_init: np.ndarray,
+    loss_fn: Callable,
+    loss_grad: Optional[Callable] = None,
+    max_iter: int = 1000,
+    tol_grad: float = 1e-6,
+    n_jobs: int = -1
+) -> Dict[str, Dict[str, Any]]:
+    """
+    Tune parameters for multiple optimizers using grid search and return optimal sets.
+
+    Parameters:
+        optimizers (Dict[str, type]): Dictionary containing optimizer names as keys
+            and their respective optimizer classes as values.
+        param_grids (Dict[str, Dict[str, list]]): Dictionary containing optimizer names
+            as keys and their respective parameter grids as values.
+        x_init (np.ndarray): The initial input for optimization.
+        loss_fn (Callable): The loss function to be minimized.
+        loss_grad (Optional[Callable]): The gradient of the loss function.
+        max_iter (int): Maximum number of iterations for each optimization run.
+        tol_grad (float): Tolerance for the gradient to determine convergence.
+        n_jobs (int): Number of parallel jobs to run (-1 for using all available CPUs).
+
+    Returns:
+        Dict[str, Dict[str, Any]]: Dictionary containing optimal grids for each optimizer.
+    """
+    def tune_parameters_single(optimizer_name, optimizer_cls, param_grid):
+        result = tune_parameters(
+            param_grid=param_grid,
+            optimizer_cls=optimizer_cls,
+            x_init=x_init,
+            loss_fn=loss_fn,
+            loss_grad=loss_grad,
+            max_iter=max_iter,
+            tol_grad=tol_grad
+        )
+        return {optimizer_name: result}
+
+    results = Parallel(n_jobs=n_jobs)(
+        delayed(tune_parameters_single)(name, cls, param_grids[name]) 
+        for name, cls in optimizers.items()
+    )
+
+    optimal_grids = {}
+    for result in results:
+        optimal_grids.update(result)
+
+    return optimal_grids
+
+def build_optimizers_config(optimal_grids, optimizer_mapping):
+    optimizers_config = {}
+
+    for optim_name, params in optimal_grids.items():
+        optimizer_cls = optimizer_mapping.get(optim_name.lower())
+        if optimizer_cls is not None:
+            optimizer_kwargs = params['optimal_grid']
+            optimizers_config[optim_name] = (optimizer_cls, optimizer_kwargs)
+
+    return optimizers_config
