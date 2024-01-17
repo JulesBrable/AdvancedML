@@ -3,19 +3,19 @@ from utils.charts import setup_plots, dynamic_plot_hyperparameters
 from utils.config import get_optimizer_choices, get_function_descriptions
 
 def setup_sidebar_ui(optimizer_choices):
-    optimizer_selected = st.sidebar.selectbox("Select an Optimizer", list(optimizer_choices.keys()))
-    lr = st.sidebar.slider("Select the Learning Rate", 0.0, 0.3, 0.01, 0.0001)
+    optimizer_selected = st.sidebar.selectbox("**Select an Optimizer**", list(optimizer_choices.keys()))
+    lr = st.sidebar.slider("**Select the Learning Rate**", 0.0, 0.3, 0.01, 0.0001)
 
     hyperparameters = {'optimizer_selected': optimizer_selected, 'lr': lr}
     if optimizer_selected == 'Adam':
-        hyperparameters['beta1'] = st.sidebar.slider("Select β₁ (First Moment Decay Rate)", 0.0, 0.999, 0.9, 0.001)
-        hyperparameters['beta2'] = st.sidebar.slider("Select β₂ (Second Moment Decay Rate)", 0.0, 0.999, 0.999, 0.001)
+        hyperparameters['beta1'] = st.sidebar.slider("**Select β₁ (First Moment Decay Rate)**", 0.0, 0.999, 0.9, 0.001)
+        hyperparameters['beta2'] = st.sidebar.slider("**Select β₂ (Second Moment Decay Rate)**", 0.0, 0.999, 0.999, 0.001)
     elif optimizer_selected in ['SGD Nesterov', 'RMSprop']:
-        hyperparameters['momentum'] = st.sidebar.slider("Select Momentum", 0.0, 0.99, 0.9, 0.01)
+        hyperparameters['momentum'] = st.sidebar.slider("**Select Momentum", 0.0, 0.99, 0.9, 0.01)
         if optimizer_selected == 'RMSprop':
-            hyperparameters['alpha'] = st.sidebar.slider("Select α (Smoothing Constant)", 0.0, 0.99, 0.99, 0.01)
+            hyperparameters['alpha'] = st.sidebar.slider("**Select α (Smoothing Constant)**", 0.0, 0.99, 0.99, 0.01)
 
-    hyperparameters['iterations'] = st.sidebar.slider('Number of Iterations', 10, 1000, 100)
+    hyperparameters['iterations'] = st.sidebar.slider('**Number of Iterations**', 10, 1000, 100)
     return hyperparameters
 
 st.title("Optimization Path Visualization with Various Algorithms")
@@ -30,7 +30,7 @@ num_iterations = hyperparameters['iterations']
 
 kwargs = {k: v for k, v in hyperparameters.items() if k not in ['optimizer_selected', 'lr', 'iterations']}
 
-function_selected = st.sidebar.radio("Select a Mathematical Function", list(function_descriptions.keys()))
+function_selected = st.sidebar.radio("**Select a Mathematical Function**", list(function_descriptions.keys()))
 st.header("Visualizing the Function: ")
 st.latex(function_descriptions[function_selected])
 

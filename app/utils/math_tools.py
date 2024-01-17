@@ -69,22 +69,19 @@ def rosenbrock_grad(x, y):
     df_dy = 2 * b * (y - x**2)
     return torch.stack([df_dx, df_dy])
 
+def ackley(x, y):
+    a = 20
+    b = 0.2
+    c = 2 * torch.pi
+    sum1 = x**2 + y**2
+    sum2 = torch.cos(c * x) + torch.cos(c * y)
+    return -a * torch.exp(-b * torch.sqrt(sum1 / 2)) - torch.exp(sum2 / 2) + a + torch.exp(torch.tensor(1.0))
 
-# def rosenbrock(x, y):
-#     res = (100.0 * (x - x**2)**2 + (1 - x)**2) +(100.0 * (y - y**2)**2 + (1 - y)**2)
-#     return res
-
-# def rosenbrock_grad(x, y):
-#     def compute_grad(z):
-#         xm = x[1:-1]
-#         xm_m1 = x[:-2]
-#         xm_p1 = x[2:]
-#         der = torch.zeros_like(x)
-#         der[1:-1] = (200 * (xm - xm_m1**2) -
-#                     400 * (xm_p1 - xm**2) * xm - 2 * (1 - xm))
-#         der[0] = -400 * x[0] * (x[1] - x[0]**2) - 2 * (1 - x[0])
-#         der[-1] = 200 * (x[-1] - x[-2]**2)
-#         return der
-#     df_dx = compute_grad(x)
-#     df_dy = compute_grad(y)
-#     return torch.stack([df_dx, df_dy])
+def ackley_grad(x, y):
+    a = 20
+    b = 0.2
+    c = 2 * torch.pi
+    common_factor = -a * torch.exp(-b * torch.sqrt((x**2 + y**2) / 2)) / 2
+    df_dx = common_factor * x / torch.sqrt((x**2 + y**2) / 2) +  torch.exp((torch.cos(c * x) + torch.cos(c * y)) / 2) * torch.sin(c * x) / 2
+    df_dy = common_factor * y / torch.sqrt((x**2 + y**2) / 2) + torch.exp((torch.cos(c * x) + torch.cos(c * y)) / 2) * torch.sin(c * y) / 2
+    return torch.stack([df_dx, df_dy])
