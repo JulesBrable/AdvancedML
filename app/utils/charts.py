@@ -3,29 +3,29 @@ from matplotlib import cm
 import torch
 import numpy as np
 from utils.config import get_function_dict, get_optimizer
+import plotly.graph_objects as go
 
-def setup_plots():
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
-    ax1 = fig.add_subplot(121, projection='3d')
-    ax2 = fig.add_subplot(122)
-    return fig, ax1, ax2
-
-def dynamic_plot_hyperparameters(optimizer_name, lr, num_iterations, function, ax1, ax2, **kwargs):
+def dynamic_plot_hyperparameters(optimizer_name, lr, num_iterations, function, betas=None, **kwargs):
     function_dict = get_function_dict()
     f, f_grad = function_dict[function]
     params = torch.tensor([1.5, -1.5], requires_grad=True)
 
-    optimizer = get_optimizer(optimizer_name, [params], lr, **kwargs)
+    optimizer_params = {'lr': lr}
+    if betas:
+        optimizer_params['betas'] = betas
+
+    optimizer = get_optimizer(optimizer_name, [params], **optimizer_params, **kwargs)
 
     x = np.linspace(-4, 4, 600)
     y = np.linspace(-4, 4, 600)
     X, Y = np.meshgrid(x, y)
     Z = f(torch.tensor(X, dtype=torch.float32), torch.tensor(Y, dtype=torch.float32)).detach().numpy()
 
-    ax1.clear()
-    ax2.clear()
-    ax1.plot_surface(X, Y, Z, cmap=cm.coolwarm, alpha=0.6)
-    ax2.contourf(X, Y, Z, levels=50, cmap=cm.coolwarm)
+    # 3D surface plot
+    fig_3d = go.Figure(data=[go.Surface(z=Z, x=X, y=Y)])
+    fig_3d.update_layout(title='3D Surface Plot', autosize=False,
+                         width=500, height=500,
+                         margin=dict(l=65, r=50, b=65, t=90))
 
     trajectory = []
     for _ in range(num_iterations):
@@ -38,6 +38,21 @@ def dynamic_plot_hyperparameters(optimizer_name, lr, num_iterations, function, a
     trajectory = np.array(trajectory)
     trajectory_tensor = torch.tensor(trajectory, dtype=torch.float32)
     z_values = f(trajectory_tensor[:, 0], trajectory_tensor[:, 1]).detach().numpy() 
-    ax1.plot(trajectory[:, 0], trajectory[:, 1], z_values, color='black', marker='o')
-    ax2.plot(trajectory[:, 0], trajectory[:, 1], color='black', marker='o')
-    
+
+    # Adding enhanced trajectory to 3D plot
+    fig_3d.add_trace(go.Scatter3d(x=trajectory[:, 0], y=trajectory[:, 1], z=z_values,
+                                  mode='lines+markers', name='Optimizer Path',
+                                  line=dict(color='green', width=4),
+                                  marker=dict(size=4, color='green')))
+
+    # 2D contour plot
+    fig_2d = go.Figure(data=[go.Contour(z=Z, x=x, y=y)])
+    fig_2d.add_trace(go.Scatter(x=trajectory[:, 0], y=trajectory[:, 1],
+                                mode='lines+markers', name='Optimizer Path',
+                                line=dict(color='green', width=4),
+                                marker=dict(size=4, color='green')))
+    fig_2d.update_layout(title='2D Contour Plot', autosize=False,
+                         width=500, height=500, margin=dict(l=65, r=50, b=65, t=90))
+
+    return fig_3d, fig_2d
+                    

@@ -1,5 +1,5 @@
 import streamlit as st
-from utils.charts import setup_plots, dynamic_plot_hyperparameters
+from utils.charts import dynamic_plot_hyperparameters
 from utils.config import get_optimizer_choices, get_function_descriptions
 
 def setup_sidebar_ui(optimizer_choices):
@@ -34,9 +34,10 @@ function_selected = st.sidebar.radio("**Select a Mathematical Function**", list(
 st.header("Visualizing the Function: ")
 st.latex(function_descriptions[function_selected])
 
-fig, ax1, ax2 = setup_plots()
-dynamic_plot_hyperparameters(optimizer_name, hyperparameters['lr'], num_iterations, function=function_selected, ax1=ax1, ax2=ax2, **kwargs)
-st.pyplot(fig)
+fig_3d, fig_2d = dynamic_plot_hyperparameters(optimizer_name, hyperparameters['lr'], num_iterations, function=function_selected, **kwargs)
+
+st.plotly_chart(fig_3d)
+st.plotly_chart(fig_2d)
 
 st.markdown("""
 The left plot is a 3D surface plot of the selected function, showing the landscape over which the optimization algorithm traverses. The right plot is a 2D contour plot of the same function, providing another perspective of the optimization path.
