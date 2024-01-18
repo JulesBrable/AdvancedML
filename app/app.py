@@ -5,18 +5,18 @@ from utils.config import get_optimizer_choices, get_function_descriptions, get_f
 
 def setup_sidebar_ui(optimizer_choices):
     optimizer_selected = st.sidebar.selectbox("**Select an Optimizer**", list(optimizer_choices.keys()))
-    lr = st.sidebar.slider("**Select the Learning Rate**", 0.0, 0.3, 0.01, 0.0001)
+    lr = st.sidebar.slider("**Select the Learning Rate**", 0.0, 0.2, 0.01, 0.001)
 
     hyperparameters = {'optimizer_selected': optimizer_selected, 'lr': lr}
     if optimizer_selected == 'Adam':
-        hyperparameters['beta1'] = st.sidebar.slider("**Select β₁ (First Moment Decay Rate)**", 0.0, 0.999, 0.9, 0.001)
-        hyperparameters['beta2'] = st.sidebar.slider("**Select β₂ (Second Moment Decay Rate)**", 0.0, 0.999, 0.999, 0.001)
+        hyperparameters['beta1'] = st.sidebar.slider("**Select β₁ (First Moment Decay Rate)**", 0.0, 0.99, 0.9, 0.01)
+        hyperparameters['beta2'] = st.sidebar.slider("**Select β₂ (Second Moment Decay Rate)**", 0.0, 0.99, 0.99, 0.01)
     elif optimizer_selected in ['SGD Nesterov', 'RMSprop']:
         hyperparameters['momentum'] = st.sidebar.slider("**Select Momentum", 0.0, 0.99, 0.9, 0.01)
         if optimizer_selected == 'RMSprop':
             hyperparameters['alpha'] = st.sidebar.slider("**Select α (Smoothing Constant)**", 0.0, 0.99, 0.99, 0.01)
 
-    hyperparameters['iterations'] = st.sidebar.slider('**Number of Iterations**', 10, 1000, 100)
+    hyperparameters['iterations'] = st.sidebar.slider('**Number of Iterations**', 10, 1000, 30)
     return hyperparameters
     
 st.title("Optimization Path Visualization with multiple optimization algorithms")
@@ -54,9 +54,10 @@ st.plotly_chart(fig_3d)
 st.plotly_chart(fig_2d)
 
 st.markdown("""
-The left plot is a 3D surface plot of the selected function, showing the landscape over which the optimization algorithm traverses. The right plot is a 2D contour plot of the same function, providing another perspective of the optimization path.
+The first plot is a 3D surface plot of the selected function, showing the landscape over which the optimization algorithm traverses.
+The second plot is a 2D contour plot of the same function, providing another perspective of the optimization path.
 
-The black line in both plots represents the trajectory of the optimizer as it seeks the function's minimum based on the provided hyperparameters.
+The green trace in both plots represents the trajectory of the optimizer as it seeks the function's minimum based on the provided hyperparameters.
 
 Adjust the hyperparameters to see how they affect the optimizer's path and efficiency in finding the function's minimum.
 """)
