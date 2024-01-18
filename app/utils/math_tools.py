@@ -71,7 +71,6 @@ def rosenbrock_grad(x, y):
     df_dy = 2 * b * (y - x**2)
     return torch.stack([df_dx, df_dy])
 
-
 def quadratic(epsilon):
     def f(x, y):
         scaled_x = x * epsilon
@@ -84,7 +83,6 @@ def quadratic(epsilon):
         return torch.stack([df_dx, df_dy])
 
     return f, f_prime
-
 
 def ackley(x, y):
     a = 20

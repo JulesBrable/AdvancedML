@@ -4,15 +4,9 @@ import torch
 from utils.optimize import optimize_with_one_optimizer
 import numpy as np
 from utils.config import get_function_dict, get_optimizer
+import plotly.graph_objects as go
 
-
-def setup_plots():
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
-    ax1 = fig.add_subplot(121, projection='3d')
-    ax2 = fig.add_subplot(122)
-    return fig, ax1, ax2
-
-def dynamic_plot_hyperparameters(optimizer_name, lr, num_iterations, epsilon, function, ax1, ax2, **kwargs):
+def dynamic_plot_hyperparameters(optimizer_name, lr, num_iterations, epsilon, function, **kwargs):
     if function == 'Quadratic':
         f, f_grad = get_function_dict()['Quadratic'](epsilon)
     else:
@@ -30,13 +24,12 @@ def dynamic_plot_hyperparameters(optimizer_name, lr, num_iterations, epsilon, fu
     else:
         Z = f(X, Y)
         
-    ax1.clear()
-    ax2.clear()
-    ax1.plot_surface(X, Y, Z, cmap=cm.coolwarm, alpha=0.6)
-    ax2.contourf(X, Y, Z, levels=50, cmap=cm.coolwarm)
-    
-    
-    
+    # 3D surface plot
+    fig_3d = go.Figure(data=[go.Surface(z=Z, x=X, y=Y)])
+    fig_3d.update_layout(title='3D Surface Plot', autosize=False,
+                         width=500, height=500,
+                         margin=dict(l=65, r=50, b=65, t=90))
+
     if optimizer_name == 'Adam':
         all_x_k, all_f_k, optimizer_instance = optimize_with_one_optimizer(
             optimizer_cls_name=optimizer_name,
@@ -58,37 +51,28 @@ def dynamic_plot_hyperparameters(optimizer_name, lr, num_iterations, epsilon, fu
             max_iter=num_iterations,
             tol_grad=1e-6
         )
-    
+
     trajectory = np.array(all_x_k)
-    z_values = np.array(all_f_k)
-    
-    if len(trajectory) > 0:
-        
-        # Beginning
-        start_x, start_y = trajectory[0, 0], trajectory[0, 1]
-        start_z = f(torch.tensor(start_x), torch.tensor(start_y)).item()
-        ax1.scatter(start_x, start_y, start_z, color='black', marker='x', s=200)
-        ax2.scatter(start_x, start_y, color='black', marker='x', s=200)
-        
-        # Trajectory
-        z_values = f(torch.tensor(trajectory[:, 0], dtype=torch.float32), torch.tensor(trajectory[:, 1], dtype=torch.float32)).detach().numpy()
-        ax1.plot(trajectory[:, 0], trajectory[:, 1], z_values, color='black', marker='.')
-        ax2.plot(trajectory[:, 0], trajectory[:, 1], color='black', marker='.')
-        
-        # End
-        end_x, end_y = trajectory[-1, 0], trajectory[-1, 1]
-        end_z = f(torch.tensor(end_x), torch.tensor(end_y)).item()
-        if len(trajectory) > 1:
-            delta_x, delta_y = trajectory[-1] - trajectory[-2]
-            ax2.arrow(trajectory[-2, 0], trajectory[-2, 1], delta_x, delta_y, head_width=0.3, head_length=0.3, fc='black', ec='black')
-
-        
-        if function != 'Quadratic':
+    trajectory_tensor = torch.tensor(trajectory, dtype=torch.float32)
+    if function != 'Quadratic':
             z_values = f(torch.tensor(trajectory[:, 0], dtype=torch.float32), torch.tensor(trajectory[:, 1], dtype=torch.float32)).detach().numpy()
-        else:
-            z_values = f(trajectory[:, 0], trajectory[:, 1])
+    else:
+        z_values = f(trajectory[:, 0], trajectory[:, 1])
 
-        ax1.plot(trajectory[:, 0], trajectory[:, 1], z_values, color='black', marker='.')
-        ax2.plot(trajectory[:, 0], trajectory[:, 1], color='black', marker='.')
+    # Adding enhanced trajectory to 3D plot
+    fig_3d.add_trace(go.Scatter3d(x=trajectory[:, 0], y=trajectory[:, 1], z=z_values,
+                                  mode='lines+markers', name='Optimizer Path',
+                                  line=dict(color='green', width=4),
+                                  marker=dict(size=4, color='green')))
 
-    
+    # 2D contour plot
+    fig_2d = go.Figure(data=[go.Contour(z=Z, x=x, y=y)])
+    fig_2d.add_trace(go.Scatter(x=trajectory[:, 0], y=trajectory[:, 1],
+                                mode='lines+markers', name='Optimizer Path',
+                                line=dict(color='green', width=4),
+                                marker=dict(size=4, color='green')))
+    fig_2d.update_layout(title='2D Contour Plot', autosize=False,
+                         width=500, height=500, margin=dict(l=65, r=50, b=65, t=90))
+
+    return fig_3d, fig_2d
+                    

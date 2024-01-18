@@ -1,8 +1,7 @@
 import matplotlib.pyplot as plt
 import streamlit as st
+from utils.charts import dynamic_plot_hyperparameters
 from utils.config import get_optimizer_choices, get_function_descriptions, get_function_explanations
-from utils.charts import setup_plots, dynamic_plot_hyperparameters
-
 
 def setup_sidebar_ui(optimizer_choices):
     optimizer_selected = st.sidebar.selectbox("**Select an Optimizer**", list(optimizer_choices.keys()))
@@ -19,7 +18,6 @@ def setup_sidebar_ui(optimizer_choices):
 
     hyperparameters['iterations'] = st.sidebar.slider('**Number of Iterations**', 10, 1000, 100)
     return hyperparameters
-
     
 st.title("Optimization Path Visualization with multiple optimization algorithms")
 
@@ -50,9 +48,10 @@ explanations = get_function_explanations()
 if function_selected in explanations:
     st.write(explanations[function_selected])
 
-fig, ax1, ax2 = setup_plots()
-dynamic_plot_hyperparameters(optimizer_name, hyperparameters['lr'], num_iterations, epsilon, function=function_selected, ax1=ax1, ax2=ax2, **kwargs)
-st.pyplot(fig)
+fig_3d, fig_2d = dynamic_plot_hyperparameters(optimizer_name, hyperparameters['lr'], num_iterations, epsilon, function=function_selected, **kwargs)
+
+st.plotly_chart(fig_3d)
+st.plotly_chart(fig_2d)
 
 st.markdown("""
 The left plot is a 3D surface plot of the selected function, showing the landscape over which the optimization algorithm traverses. The right plot is a 2D contour plot of the same function, providing another perspective of the optimization path.

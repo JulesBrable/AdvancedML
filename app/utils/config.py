@@ -60,4 +60,3 @@ def get_function_explanations():
         'Ackley': "Ackley Several Local Minima: The Ackley function is characterized by having numerous local minima in a wide, flat landscape. This complexity poses a challenge for optimization algorithms, as they must navigate through the multitude of minima to find the global minimum. Assessing an algorithm's robustness and ability to handle such scenarios is crucial when dealing with functions like Ackley."
     }
     return explanations
-
