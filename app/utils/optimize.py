@@ -1,14 +1,15 @@
 from typing import Callable, Dict, Any, Optional, Tuple
 import numpy as np
 import torch
-from src.algorithms.adam import AdamOptimizer
-from torch.optim import SGD, Adagrad, RMSprop, Adadelta
+from utils.adam import AdamOptimizer
+from utils.config import get_optimizer, get_optimizer_choices
 
 def optimize_with_one_optimizer(
     optimizer_cls_name,
     x_init: np.ndarray,
     loss_fn: Callable,
     loss_grad: Optional[Callable] = None,  # only for AdamOptimizer
+    lr: float = 0.01,
     optim_kwargs: Dict[str, Any] = None,
     max_iter: int = 100,
     tol_grad: float = 1e-6
@@ -35,19 +36,13 @@ def optimize_with_one_optimizer(
     x = torch.tensor(x_init, dtype=torch.float64, requires_grad=True)
         
     if optimizer_cls_name == "Adam":
+        optim_kwargs['lr'] = lr
         adam_optimizer = AdamOptimizer(**optim_kwargs)
         adam_optimizer.minimize(x, f=lambda x: loss_fn(x.clone().detach()), f_grad=lambda x: loss_grad(x.clone().detach()))
         return np.array(adam_optimizer.all_x_k), np.array(adam_optimizer.all_f_k), adam_optimizer
             
-    optimizer_classes = {
-        'SGD': SGD,
-        'Adagrad': Adagrad,
-        'RMSprop': RMSprop,
-        'Adadelta': Adadelta
-    }
 
-    optimizer_cls = optimizer_classes.get(optimizer_cls_name)
-    optimizer = optimizer_cls([x], **optim_kwargs)
+    optimizer = get_optimizer(optimizer_cls_name, [x], lr, **optim_kwargs)
     all_x_k, all_f_k = [x.detach().numpy()], [loss_fn(x).item()]
     
     for _ in range(max_iter):
@@ -59,5 +54,4 @@ def optimize_with_one_optimizer(
             x_k_np = x.detach().numpy().copy()  
             all_x_k.append(x_k_np)
             all_f_k.append(loss_fn(x).item())
-
     return np.array(all_x_k)[1:], np.array(all_f_k), optimizer
