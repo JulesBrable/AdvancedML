@@ -38,7 +38,7 @@ def optimize_with_one_optimizer(
     if optimizer_cls_name == "Adam":
         optim_kwargs['lr'] = lr
         adam_optimizer = AdamOptimizer(**optim_kwargs)
-        adam_optimizer.minimize(x, f=lambda x: loss_fn(x.clone().detach()), f_grad=lambda x: loss_grad(x.clone().detach()))
+        adam_optimizer.minimize(x, f=lambda x: loss_fn(x.clone().detach()), f_grad=lambda x: loss_grad(x.clone().detach()), max_iter=max_iter)
         return np.array(adam_optimizer.all_x_k), np.array(adam_optimizer.all_f_k), adam_optimizer
             
 

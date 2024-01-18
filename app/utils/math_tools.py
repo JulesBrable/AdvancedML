@@ -35,8 +35,8 @@ def gaussian(x, y):
     return 1 - torch.exp(-(x**2 + y**2))
 
 def gaussian_grad(x, y):
-    df_dx = 2 * x * torch.exp(-x**2)
-    df_dy = 2 * y * torch.exp(-y**2)
+    df_dx = 2 * x * torch.exp(-(x**2 + y**2))
+    df_dy = 2 * y * torch.exp(-(x**2 + y**2))
     return torch.stack([df_dx, df_dy])
     
 def logarithmic(x, y):
@@ -79,8 +79,8 @@ def quadratic(epsilon):
         return 0.5 * (scaled_x**2 + scaled_y**2)
 
     def f_prime(x, y):
-        df_dx = epsilon * x
-        df_dy = epsilon**2 * y
+        df_dx = epsilon**2 * x
+        df_dy = epsilon**4 * y
         return torch.stack([df_dx, df_dy])
 
     return f, f_prime
@@ -98,7 +98,13 @@ def ackley_grad(x, y):
     a = 20
     b = 0.2
     c = 2 * torch.pi
-    common_factor = -a * torch.exp(-b * torch.sqrt((x**2 + y**2) / 2)) / 2
-    df_dx = common_factor * x / torch.sqrt((x**2 + y**2) / 2) +  torch.exp((torch.cos(c * x) + torch.cos(c * y)) / 2) * torch.sin(c * x) / 2
-    df_dy = common_factor * y / torch.sqrt((x**2 + y**2) / 2) + torch.exp((torch.cos(c * x) + torch.cos(c * y)) / 2) * torch.sin(c * y) / 2
+    exp_term = torch.exp(-b * torch.sqrt((x**2 + y**2) / 2))
+    trig_term = torch.exp((torch.cos(c * x) + torch.cos(c * y)) / 2)
+    
+    df_dx = a * b * exp_term * x / torch.sqrt(2*(x**2 + y**2)) \
+            + c/2 * trig_term * torch.sin(c * x)
+            
+    df_dy = a * b * exp_term * y / torch.sqrt(2*(x**2 + y**2)) \
+            + c/2 * trig_term * torch.sin(c * y)
+
     return torch.stack([df_dx, df_dy])
