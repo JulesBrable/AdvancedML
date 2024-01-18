@@ -66,6 +66,11 @@ streamlit run app.py --server.port=8000
 
 By default, we are using port 8000, so once you have run the last two commands, you will be able to access the app with the following link: [http://localhost:8000/](http://localhost:8000/).
 
+<p align="center">
+  <img src="https://github.com/JulesBrable/AdvancedML/tree/main/assets/img/app1.png" width="400" />
+  <img src="https://github.com/JulesBrable/AdvancedML/tree/main/assets/img/app2.png" width="400" />
+</p>
+
 ## Contact
 
 * [Jules Brablé](https://github.com/JulesBrable) - jules.brable@ensae.fr
