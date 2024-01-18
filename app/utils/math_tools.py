@@ -1,36 +1,22 @@
 
 import torch
 
-def f1(x, y): 
+
+def polynomial(x, y): 
     return x**4 - x**3 + y**2
 
-def f1_grad(x, y):
+def polynomial_grad(x, y):
     df_dx = 4*x**3 - 3*x**2
     df_dy = 2*y
     return torch.stack([df_dx, df_dy])
 
-def f2(x, y):
+
+def trigonometric(x, y):
     return torch.sin(x) + torch.cos(y)
 
-def f2_grad(x, y):
+def trigonometric_grad(x, y):
     df_dx = torch.cos(x)
     df_dy = -torch.sin(y)
-    return torch.stack([df_dx, df_dy])
-    
-def f4(x, y):
-    return -torch.log(x**2 + y**2 + 1)
-
-def f4_grad(x, y):
-    df_dx = -2*x/(x**2 + y**2 + 1)
-    df_dy = -2*y/(x**2 + y**2 + 1)
-    return torch.stack([df_dx, df_dy])
-
-def f5(x, y):
-    return x**2 - torch.sin(y)**2
-
-def f5_grad(x, y):
-    df_dx = 2*x
-    df_dy = -2*torch.sin(y)*torch.cos(y)
     return torch.stack([df_dx, df_dy])
 
 # ====================================================================
@@ -46,11 +32,27 @@ def gaussian(x, y):
     Returns:
         torch.Tensor: Output of the Gaussian kernel function.
     """
-    return torch.exp(-(x**2 + y**2))
+    return 1 - torch.exp(-(x**2 + y**2))
 
 def gaussian_grad(x, y):
-    df_dx = -2 * x * torch.exp(-x**2)
-    df_dy = -2 * y * torch.exp(-y**2)
+    df_dx = 2 * x * torch.exp(-(x**2 + y**2))
+    df_dy = 2 * y * torch.exp(-(x**2 + y**2))
+    return torch.stack([df_dx, df_dy])
+    
+def logarithmic(x, y):
+    return -torch.log(x**2 + y**2 + 1)
+
+def logarithmic_grad(x, y):
+    df_dx = -2*x/(x**2 + y**2 + 1)
+    df_dy = -2*y/(x**2 + y**2 + 1)
+    return torch.stack([df_dx, df_dy])
+
+def mixed(x, y):
+    return x**2 - torch.sin(y)**2
+
+def mixed_grad(x, y):
+    df_dx = 2*x
+    df_dy = -2*torch.sin(y)*torch.cos(y)
     return torch.stack([df_dx, df_dy])
 
 # ====================================================================
@@ -69,6 +71,19 @@ def rosenbrock_grad(x, y):
     df_dy = 2 * b * (y - x**2)
     return torch.stack([df_dx, df_dy])
 
+def quadratic(epsilon):
+    def f(x, y):
+        scaled_x = x * epsilon
+        scaled_y = y * epsilon**2
+        return 0.5 * (scaled_x**2 + scaled_y**2)
+
+    def f_prime(x, y):
+        df_dx = epsilon**2 * x
+        df_dy = epsilon**4 * y
+        return torch.stack([df_dx, df_dy])
+
+    return f, f_prime
+
 def ackley(x, y):
     a = 20
     b = 0.2
@@ -81,7 +96,13 @@ def ackley_grad(x, y):
     a = 20
     b = 0.2
     c = 2 * torch.pi
-    common_factor = -a * torch.exp(-b * torch.sqrt((x**2 + y**2) / 2)) / 2
-    df_dx = common_factor * x / torch.sqrt((x**2 + y**2) / 2) +  torch.exp((torch.cos(c * x) + torch.cos(c * y)) / 2) * torch.sin(c * x) / 2
-    df_dy = common_factor * y / torch.sqrt((x**2 + y**2) / 2) + torch.exp((torch.cos(c * x) + torch.cos(c * y)) / 2) * torch.sin(c * y) / 2
+    exp_term = torch.exp(-b * torch.sqrt((x**2 + y**2) / 2))
+    trig_term = torch.exp((torch.cos(c * x) + torch.cos(c * y)) / 2)
+    
+    df_dx = a * b * exp_term * x / torch.sqrt(2*(x**2 + y**2)) \
+            + c/2 * trig_term * torch.sin(c * x)
+            
+    df_dy = a * b * exp_term * y / torch.sqrt(2*(x**2 + y**2)) \
+            + c/2 * trig_term * torch.sin(c * y)
+
     return torch.stack([df_dx, df_dy])
