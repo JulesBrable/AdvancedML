@@ -1,5 +1,9 @@
 import torch
-from src.algorithms.test_functions import mk_quad, mk_gauss, rosenbrock, rosenbrock_grad, ackley, ackley_grad
+from src.algorithms_old.test_functions import (
+    mk_quad, mk_gauss,
+    rosenbrock, rosenbrock_grad,
+    ackley, ackley_grad
+)
 
 # Quadratic kernel functions
 def test_quad():

@@ -1,12 +1,12 @@
 """
 """
 from itertools import product
-from typing import Callable, Dict, Any, Optional, Tuple
+from typing import Callable, Dict, Any, Optional, Tuple, Literal
 
 import numpy as np
 import torch
 from joblib import Parallel, delayed
-from src.algorithms.adam import AdamOptimizer
+from src.algorithms_old.adam import AdamOptimizer
 
 
 def optimize_with_one_optimizer(
@@ -125,30 +125,51 @@ def tune_parameters(
     loss_fn: Callable,
     loss_grad: Optional[Callable] = None,
     max_iter: int = 1000,
-    tol_grad: float = 1e-6
+    tol_grad: float = 1e-6,
+    criteria: Literal["n_iter", "x_distance"] = "n_iter",
+    x_star: Optional[np.ndarray] = None
 ) -> Dict[str, Any]:
 
-    best_n_iter = float('inf')
+    best_score = float('inf')
     best_params = None
 
-    for params in product(*param_grid.values()):
-        optimizer_params = dict(zip(param_grid.keys(), params))
-        result = optimize_with_one_optimizer(
-            optimizer_cls=optimizer_cls,
-            x_init=x_init,
-            loss_fn=loss_fn,
-            loss_grad=loss_grad,
-            optim_kwargs=optimizer_params,
-            max_iter=max_iter,
-            tol_grad=tol_grad
-        )
-        current_n_iter = len(result[0])
+    if criteria == "n_iter":
+        for params in product(*param_grid.values()):
+            optimizer_params = dict(zip(param_grid.keys(), params))
+            result = optimize_with_one_optimizer(
+                optimizer_cls=optimizer_cls,
+                x_init=x_init,
+                loss_fn=loss_fn,
+                loss_grad=loss_grad,
+                optim_kwargs=optimizer_params,
+                max_iter=max_iter,
+                tol_grad=tol_grad
+            )
+            current_n_iter = len(result[0])
 
-        if current_n_iter < best_n_iter:
-            best_n_iter = current_n_iter
-            best_params = optimizer_params
+            if current_n_iter < best_score:
+                best_score = current_n_iter
+                best_params = optimizer_params
 
-    return {"optimal_grid": best_params, "best_n_iter": best_n_iter}
+    elif criteria == "x_distance":
+        for params in product(*param_grid.values()):
+            optimizer_params = dict(zip(param_grid.keys(), params))
+            result = optimize_with_one_optimizer(
+                optimizer_cls=optimizer_cls,
+                x_init=x_init,
+                loss_fn=loss_fn,
+                loss_grad=loss_grad,
+                optim_kwargs=optimizer_params,
+                max_iter=max_iter,
+                tol_grad=tol_grad
+            )
+            current_min = np.linalg.norm(result[0][-1] - x_star)
+
+            if current_min < best_score:
+                best_score = current_min
+                best_params = optimizer_params
+
+    return {"optimal_grid": best_params, "best_n_iter": best_score}
 
 
 def tune_parameters_multiple(
