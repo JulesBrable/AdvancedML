@@ -179,9 +179,8 @@ class AdamOptimizer():
         if self.iter.item() == 0:
             self.initialize(theta)
 
-        self.all_x_k.append(theta.clone().detach().numpy())
-        f_theta = f(theta)
-        self.all_f_k.append(f_theta.item() if isinstance(f_theta, torch.Tensor) else f_theta) 
+        self.all_x_k.append(theta.clone().numpy())
+        self.all_f_k.append(f(theta).numpy())
 
         for _ in range(max_iter):
             theta, f_theta, grad_theta = self.update_step(
@@ -190,9 +189,8 @@ class AdamOptimizer():
                 f_grad=f_grad,
                 f_grad_args=f_grad_args
             )
-            self.all_x_k.append(theta.clone().detach().numpy())
-            f_theta = f(theta)
-            self.all_f_k.append(f_theta.item() if isinstance(f_theta, torch.Tensor) else f_theta)
+            self.all_x_k.append(theta.clone().numpy())
+            self.all_f_k.append(f_theta.clone().numpy())
 
             # Alternative stopping criteria.
             l_inf_norm_grad = torch.max(torch.abs(grad_theta))
