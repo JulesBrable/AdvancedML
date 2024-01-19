@@ -4,7 +4,7 @@ Repository for the final project of the Advanced Machine Learning course (taught
 ## Contents
 
 * `notebooks` folder contains the notebook `descriptives.ipynb`, which briefly shows how to reproduce the empirical results we obtained in our paper (the underlying approach followed in this notebooks is described in our paper). This notebook contains 3 sections : Data, K-Fold Cross Validation and Training with best hyper-paramters. The `algorithms.ipynb` notebook documents our theoretical experiment, where we sought optimal settings to minimize different types of functions using Adam and other stochastic algorithms. It includes visualizations of convergence paths and tables summarizing the hyperparameters for replicating the results.
-* `src` folder contains the 2 modules (`etl` and `model`) we are using in the notebook `descriptives.ipynb`. Basically, the scripts inside these modules allow to extract and preprocessed data, as well as build, training and evaluating the models we are using.
+* `src` folder holds two modules (`etl` and `model`) utilized in the `descriptives.ipynb` notebook, and another (`algorithms`) used in `algorithms.ipynb`. The scripts in the first two modules handle data extraction, preprocessing, model construction, training, and evaluation. The latter module contains our Adam algorithm implementation (`adam.py`) and utility functions for optimization, hyperparameter tuning, and visualization.
 * `app` folder contains the source code of a [`Streamlit`](https://streamlit.io/) web app (see below for a more detailed description of this app).
 
 _**Note:** this repository does not contains the final report associated to this study (in which we present more in depth both theoritical and empirical aspectsof our work)._
