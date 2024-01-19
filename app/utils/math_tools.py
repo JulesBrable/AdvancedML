@@ -40,11 +40,11 @@ def gaussian_grad(x, y):
     return torch.stack([df_dx, df_dy])
     
 def logarithmic(x, y):
-    return -torch.log(x**2 + y**2 + 1)
+    return torch.log(x**2 + y**2 + 1)
 
 def logarithmic_grad(x, y):
-    df_dx = -2*x/(x**2 + y**2 + 1)
-    df_dy = -2*y/(x**2 + y**2 + 1)
+    df_dx = 2*x/(x**2 + y**2 + 1)
+    df_dy = 2*y/(x**2 + y**2 + 1)
     return torch.stack([df_dx, df_dy])
 
 def mixed(x, y):
