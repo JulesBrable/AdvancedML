@@ -13,7 +13,7 @@ def get_function_descriptions():
         'Trigonometric': r'f(x, y) = \sin(x) + \cos(y)',
         'Logarithmic': r'f(x, y) = -\log(x^2 + y^2 + 1)',
         'Mixed': r'f(x, y) = x^2 - \sin(y)^2',
-        'Quadratic': r'\rm{Quadratic}(\varepsilon, x, y) = 0.5 * (\varepsilon x^2 + \varepsilon^2 y^2)'
+        'Quadratic': r'\rm{Quadratic}(\varepsilon, x, y) = 0.5 * (x^2 + \varepsilon y^2)'
     }
 
 def get_optimizer_choices():

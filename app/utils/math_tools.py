@@ -73,13 +73,12 @@ def rosenbrock_grad(x, y):
 
 def quadratic(epsilon):
     def f(x, y):
-        scaled_x = x * epsilon
-        scaled_y = y * epsilon**2
-        return 0.5 * (scaled_x**2 + scaled_y**2)
+        scaled_y = epsilon * y**2
+        return 0.5 * (x**2 + scaled_y)
 
     def f_prime(x, y):
-        df_dx = epsilon**2 * x
-        df_dy = epsilon**4 * y
+        df_dx = x
+        df_dy = epsilon * y
         return torch.stack([df_dx, df_dy])
 
     return f, f_prime
