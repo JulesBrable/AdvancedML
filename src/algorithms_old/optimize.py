@@ -1,10 +1,12 @@
-"""
+"""Optimization function.
 """
 from itertools import product
-from typing import Callable, Dict, Any, Optional, Tuple, Literal
+from typing import Any, Dict, List, Tuple
+from typing import Callable, Literal, Optional, Union
 
 import numpy as np
 import torch
+import torch.optim as optim
 from joblib import Parallel, delayed
 from src.algorithms_old.adam import AdamOptimizer
 
@@ -213,7 +215,7 @@ def tune_parameters_multiple(
         return {optimizer_name: result}
 
     results = Parallel(n_jobs=n_jobs)(
-        delayed(tune_parameters_single)(name, cls, param_grids[name]) 
+        delayed(tune_parameters_single)(name, cls, param_grids[name])
         for name, cls in optimizers.items()
     )
 
@@ -233,3 +235,61 @@ def build_optimizers_config(optimal_grids, optimizer_mapping):
             optimizers_config[optim_name] = (optimizer_cls, optimizer_kwargs)
 
     return optimizers_config
+
+def optimize_workflow(
+    optimizers: List[str],
+    param_grids: Dict[str, Dict[str, Union[float, int]]],
+    x_init: Union[List[float], np.ndarray],
+    loss_fn: callable,
+    loss_grad: callable,
+    max_iter: int = 1000,
+    tol_grad: float = 1e-6,
+    n_jobs: int = -1
+) -> Tuple[List[Union[List[float], np.ndarray]], List[float]]:
+    """
+    Optimize a workflow using multiple optimizers.
+
+    Parameters:
+    - optimizers (list): List of optimizer names.
+    - param_grids (dict): Dictionary of parameter grids for each optimizer.
+    - x_init (list or numpy array): Initial point for optimization.
+    - loss_fn (function): Loss function to be minimized.
+    - loss_grad (function): Gradient of the loss function.
+    - max_iter (int, optional): Maximum number of iterations. Default is 1000.
+    - tol_grad (float, optional): Tolerance for gradient norm. Default is 1e-6.
+    - n_jobs (int, optional): Number of parallel jobs. Default is -1 (all CPUs).
+
+    Returns:
+    - solutions (list): List of optimal solutions found by each optimizer.
+    - values (list): List of corresponding minimum values.
+    """
+    optimal_grids = tune_parameters_multiple(
+        optimizers=optimizers,
+        param_grids=param_grids,
+        x_init=x_init,
+        loss_fn=loss_fn,
+        loss_grad=loss_grad,
+        max_iter=max_iter,
+        tol_grad=tol_grad,
+        n_jobs=n_jobs
+    )
+    optimizer_mapping = {
+        "adam": AdamOptimizer,
+        "sgd-nesterov": optim.SGD,
+        "adagrad": optim.Adagrad,
+        "rmsprop": optim.RMSprop
+    }
+    optimizers_config = build_optimizers_config(optimal_grids,
+                                                 optimizer_mapping)
+    print(optimizers_config)
+    solutions, values = optimize_with_multiple_optimizers(
+        x_init=x_init,
+        loss_fn=loss_fn,
+        loss_grad=loss_grad,
+        optimizers_config=optimizers_config,
+        max_iter=max_iter,
+        tol_grad=tol_grad
+    )
+    print(optimal_grids)
+
+    return solutions, values
