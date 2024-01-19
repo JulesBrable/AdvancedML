@@ -11,7 +11,7 @@ def get_function_descriptions():
         'Gaussian': r'f(x, y) = 1 - \exp(-(x^2 + y^2))',
         'Polynomial': r'f(x, y) = x^4 - x^3 + y^2',
         'Trigonometric': r'f(x, y) = \sin(x) + \cos(y)',
-        'Logarithmic': r'f(x, y) = -\log(x^2 + y^2 + 1)',
+        'Logarithmic': r'f(x, y) = \log(x^2 + y^2 + 1)',
         'Mixed': r'f(x, y) = x^2 - \sin(y)^2',
         'Quadratic': r'f(\varepsilon, x, y) = 0.5 * (x^2 + \varepsilon y^2)'
     }
