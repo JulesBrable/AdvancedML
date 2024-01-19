@@ -82,6 +82,6 @@ The second plot is a 2D contour plot of the same function, providing another per
 The green trace in both plots represents the trajectory of the optimizer as it seeks the function's minimum based on the provided hyperparameters.
 
 Adjust the hyperparameters to see how they affect the optimizer's path and efficiency in finding the function's minimum.
-We recommend that you zoom in on each graph and move around the figure: this can be done by clicking directly on the graph and/or using the tools on the right-hand side of each graph".
+We recommend that you zoom in on each graph and move around the figure: this can be done by clicking directly on the graph and/or using the tools on the right-hand side of each graph.
 """)
 
