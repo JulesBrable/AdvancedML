@@ -7,7 +7,7 @@ Repository for the final project of the Advanced Machine Learning course (taught
 * `src` folder holds two modules (`etl` and `model`) utilized in the `descriptives.ipynb` notebook, and another (`algorithms`) used in `algorithms.ipynb`. The scripts in the first two modules handle data extraction, preprocessing, model construction, training, and evaluation. The latter module contains our Adam algorithm implementation (`adam.py`) and utility functions for optimization, hyperparameter tuning, and visualization.
 * `app` folder contains the source code of a [`Streamlit`](https://streamlit.io/) web app (see below for a more detailed description of this app).
 
-_**Note:** this repository does not contains the final report associated to this study (in which we present more in depth both theoritical and empirical aspectsof our work)._
+_**Note:** this repository does not contain the final report associated to this study (in which we present more in depth both theoretical and empirical aspects of our work)._
 
 ## Setup Instructions
 
@@ -42,11 +42,11 @@ pip install -e .
 python src/etl/utils.py
 ```
 
-_**Note:** the data comes from the public [UC Irvine Machine Learning Repository](https://archive.ics.uci.edu/dataset/544/estimation+of+obesity+levels+based+on+eating+habits+and+physical+condition), and can also be directly downloaded from this site. We have also added the data in thsi repository in the `data` folder for back-up, although we are aware it is not a best practice._
+_**Note:** the data comes from the public [UC Irvine Machine Learning Repository](https://archive.ics.uci.edu/dataset/544/estimation+of+obesity+levels+based+on+eating+habits+and+physical+condition), and can also be directly downloaded from this site. We have also added the data in this repository in the `data` folder for back-up, although we are aware it is not a best practice._
 
 ## Web application
 
-In this project, we also built a simple [`Streamlit`](https://streamlit.io/) web app. Its purpose it to visualize intuitively how the Adam algorithm is performing on minimizing a mathematical function. The user is encouraged to test different combination of Adam's hyper-paramters, to see their impact on the optimization path.
+In this project, we also built a simple [`Streamlit`](https://streamlit.io/) web app. Its purpose is to visualize intuitively how the Adam algorithm is performing on minimizing a mathematical function, compared to other optimization algorithms. The user is encouraged to test different combination of hyper-paramters, to see their impact on the optimization path.
 
 To access the app, one can simply click [here](https://advancedml-optimization.streamlit.app/) (it is deployed on [Streamlit Community Cloud](https://streamlit.io/cloud)). You just have to authenticate yourself before (creating a Streamlit account is completely free of charge).
 
